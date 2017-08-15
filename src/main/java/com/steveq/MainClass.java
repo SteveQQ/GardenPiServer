@@ -1,29 +1,30 @@
 package com.steveq;
 
 import com.pi4j.io.gpio.*;
+import com.steveq.alarms.AlarmsCreator;
 import com.steveq.bt_server.BluetoothWaitThread;
+import com.steveq.communication.models.Section;
+import com.steveq.database.Repository;
+import com.steveq.database.SectionsRepository;
+import com.steveq.database.SectionsSQLiteHelper;
+import com.steveq.utils.FileUtils;
+import com.steveq.weather.WeatherController;
+
+import java.util.Map;
 
 /**
  * Created by Adam on 2017-07-18.
  */
 public class MainClass {
+    private static AlarmsCreator alarmsCreator;
+
     public static void main(String[] args) {
+        alarmsCreator = new AlarmsCreator();
+
+
+
+        alarmsCreator.registerAlarmForSection(Integer.valueOf(FileUtils.getDurationProperty()));
         Thread waitThread = new Thread(new BluetoothWaitThread());
         waitThread.start();
-//        System.out.println("<--Pi4J--> GPIO Control Example ... started.");
-//
-//        // create gpio controller
-//        final GpioController gpio = GpioFactory.getInstance();
-//
-//        // provision gpio pin #01 as an output pin and turn on
-//        final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_15, "MyLED", PinState.HIGH);
-//
-//        try {
-//            Thread.sleep(5000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//
-//        pin.setState(PinState.LOW);
     }
 }

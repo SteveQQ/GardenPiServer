@@ -13,6 +13,7 @@ import java.io.IOException;
  * Created by Adam on 2017-07-18.
  */
 public class BluetoothWaitThread implements Runnable {
+
     public BluetoothWaitThread(){}
 
     @Override

@@ -1,20 +1,23 @@
 package com.steveq.bt_server;
 
-import com.pi4j.io.gpio.*;
+import com.steveq.communication.JsonProcessor;
+import com.steveq.communication.models.FromClientRequest;
+import com.steveq.communication.models.ToClientResponse;
+import com.steveq.controllers.*;
 
 import javax.microedition.io.StreamConnection;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
 
 /**
  * Created by Adam on 2017-07-18.
  */
 public class ProcessConnectionThread implements Runnable{
     private StreamConnection streamConnection;
+    public Boolean isConnected = false;
+    public Boolean isRunning = false;
+    private FromClientRequest request;
+    private Controller processController;
+    private OutputStream outputStream;
 
     public ProcessConnectionThread(StreamConnection connection){
         streamConnection = connection;
@@ -24,15 +27,19 @@ public class ProcessConnectionThread implements Runnable{
     public void run() {
         try{
             System.out.println("waiting for input");
+            isConnected = true;
             InputStream inputStream = streamConnection.openInputStream();
-            byte[] buffer = new byte[1024];
+            outputStream = streamConnection.openDataOutputStream();
+            byte[] buffer = new byte[8000];
 
             System.out.println("waiting ... ");
             System.out.println("Input Stream : " + inputStream);
             int counter = 0;
             while(true){
+                isRunning = true;
                 inputStream.read(buffer);
                 System.out.println("COMMAND STRING : " + new String(buffer));
+
                 processCommand(buffer);
             }
         } catch (IOException ioe){
@@ -40,25 +47,39 @@ public class ProcessConnectionThread implements Runnable{
         }
     }
 
-    private void processCommand(byte[] data){
-        String key = new String(data);
-        System.out.println("KEY : " + key);
-        if("hello world".equals(key.trim())){
-            System.out.println("<--Pi4J--> GPIO Control Example ... started.");
+    private void processCommand(byte[] data) throws IOException {
+        String payload = new String(data);
+        System.out.println("RECEIVED REQUEST : " + payload);
+        request = JsonProcessor.getInstance().parseClientRequest(payload);
 
-            // create gpio controller
-            final GpioController gpio = GpioFactory.getInstance();
+        JsonProcessor.Method method = JsonProcessor.Method.valueOf(request.getMethod());
 
-            // provision gpio pin #01 as an output pin and turn on
-            final GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_15, "MyLED", PinState.HIGH);
-
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        System.out.println("METHOD : " + method);
+        switch(method){
+            case SCAN: {
+                processController = new ScanMethodController();
+                break;
             }
-
-            pin.setState(PinState.LOW);
+            case UPLOAD: {
+                processController = new UploadSectionsDataController();
+                break;
+            }
+            case DOWNLOAD : {
+                processController = new DownloadSectionsDataController();
+                break;
+            }
+            case WEATHER : {
+                processController = new WeatherMethodController();
+                break;
+            }
+            default: {
+                break;
+            }
         }
+
+        ToClientResponse response = processController.processRequest(request);
+        String responseString = JsonProcessor.getInstance().getResponseString(response);
+        System.out.println("RESPONSE STRING : " + responseString);
+        outputStream.write(responseString.getBytes());
     }
 }
