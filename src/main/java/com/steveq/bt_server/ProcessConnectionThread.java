@@ -72,6 +72,10 @@ public class ProcessConnectionThread implements Runnable{
                 processController = new WeatherMethodController();
                 break;
             }
+            case SENSORS : {
+                processController = new SensorsController();
+                break;
+            }
             default: {
                 break;
             }

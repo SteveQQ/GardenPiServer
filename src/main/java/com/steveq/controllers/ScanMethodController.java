@@ -13,7 +13,6 @@ import com.steveq.communication.models.FromClientRequest;
 import com.steveq.communication.models.Section;
 import com.steveq.communication.models.ToClientResponse;
 import com.steveq.utils.PinsUtils;
-import com.steveq.weather.model.WeatherModel;
 import com.steveq.weather.model.WeatherOutputModel;
 
 import java.io.IOException;
@@ -39,9 +38,11 @@ public class ScanMethodController implements Controller {
             // create gpio controller
             final GpioController gpio = GpioFactory.getInstance();
 
+            System.out.println("Get GPIO");
             final AdcGpioProvider provider;
             provider = new MCP3008GpioProvider(SpiChannel.CS0);
 
+            System.out.println("GET PROVIDER");
             final GpioPinAnalogInput inputs[] = {
                     gpio.provisionAnalogInputPin(provider, MCP3008Pin.CH0, "1"),
                     gpio.provisionAnalogInputPin(provider, MCP3008Pin.CH1, "2")
@@ -54,10 +55,10 @@ public class ScanMethodController implements Controller {
             GpioPinListenerAnalog listenerAnalog = new GpioPinListenerAnalog() {
                 @Override
                 public void handleGpioPinAnalogValueChangeEvent(GpioPinAnalogValueChangeEvent event) {
-                    if(event.getValue() < 700){
+                    if(event.getValue() < 1020){
                         System.out.println("PIN CONNECTED : " + event.getPin().getName());
                         sectionsNums.add(Integer.valueOf(event.getPin().getName()));
-                    } else if (event.getValue() > 1000){
+                    } else{
                         System.out.println("PIN NOT CONNECTED : " + event.getPin().getName());
                     }
                     double value = event.getValue();
@@ -68,8 +69,8 @@ public class ScanMethodController implements Controller {
             gpio.addListener(listenerAnalog, inputs);
 
             try{
-                final GpioPinDigitalOutput section2Pin = gpio.provisionDigitalOutputPin(PinsUtils.pinsMapping.get(PinsUtils.Output.SECTION2), "2", PinState.HIGH);
-                final GpioPinDigitalOutput section1Pin = gpio.provisionDigitalOutputPin(PinsUtils.pinsMapping.get(PinsUtils.Output.SECTION1), "1", PinState.HIGH);
+                final GpioPinDigitalOutput section2Pin = gpio.provisionDigitalOutputPin(PinsUtils.outputPinsMapping.get(PinsUtils.Output.SECTION2), "2", PinState.HIGH);
+                final GpioPinDigitalOutput section1Pin = gpio.provisionDigitalOutputPin(PinsUtils.outputPinsMapping.get(PinsUtils.Output.SECTION1), "1", PinState.HIGH);
 
 
                 try {

@@ -24,10 +24,10 @@ public class SectionTurnOnTask extends TimerTask {
     public SectionTurnOnTask(Section section){
         switch(section.getNumber()){
             case 1:
-                pin = PinsUtils.pinsMapping.get(PinsUtils.Output.SECTION1);
+                pin = PinsUtils.outputPinsMapping.get(PinsUtils.Output.SECTION1);
                 break;
             case 2:
-                pin = PinsUtils.pinsMapping.get(PinsUtils.Output.SECTION2);
+                pin = PinsUtils.outputPinsMapping.get(PinsUtils.Output.SECTION2);
                 break;
             default:
                 break;
@@ -46,10 +46,10 @@ public class SectionTurnOnTask extends TimerTask {
     public void run() {
         switch(section.getNumber()){
             case 1:
-                pin = PinsUtils.pinsMapping.get(PinsUtils.Output.SECTION1);
+                pin = PinsUtils.outputPinsMapping.get(PinsUtils.Output.SECTION1);
                 break;
             case 2:
-                pin = PinsUtils.pinsMapping.get(PinsUtils.Output.SECTION2);
+                pin = PinsUtils.outputPinsMapping.get(PinsUtils.Output.SECTION2);
                 break;
             default:
                 break;

@@ -17,7 +17,8 @@ public class JsonProcessor {
         SCAN,
         UPLOAD,
         DOWNLOAD,
-        WEATHER
+        WEATHER,
+        SENSORS
     }
 
     private JsonProcessor(){

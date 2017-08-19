@@ -11,10 +11,10 @@ remotes {
     raspberrypi {
         List<String> auths = new ArrayList()
         auths.add('password')
-        host = '10.9.132.157'
+        host = ''
         port = 22
         user = 'pi'
-        password = 'raspberry'
+        password = ''
         authentications = auths
         knownHosts = allowAnyHosts
     }
@@ -37,7 +37,7 @@ task deploy(dependsOn: shadowJar){
             session(remotes.raspberrypi) {
                 put from: file(project.buildDir.toString() + '\\libs\\GardenPiServer-1.0-SNAPSHOT-all.jar'), into: '/home/pi/Documents/GardenPiServer'
                 execute '/home/pi/Documents/GardenPiServer/bluetooth_startup'
-                execute 'sudo java -cp /home/pi/Documents/GardenPiServer/bluecove-2.1.0.jar:/home/pi/Documents/GardenPiServer/bluecove-gpl-2.1.0.jar:/home/pi/Documents/GardenPiServer/GardenPiServer-1.0-SNAPSHOT-all.jar com.steveq.MainClass', pty:true
+                execute 'sudo java -Djava.library.path=/home/pi/Documents/GardenPiServer -cp /home/pi/Documents/GardenPiServer/w1.jar:/home/pi/Documents/GardenPiServer/bluecove-2.1.0.jar:/home/pi/Documents/GardenPiServer/bluecove-gpl-2.1.0.jar:/home/pi/Documents/GardenPiServer/GardenPiServer-1.0-SNAPSHOT-all.jar com.steveq.MainClass', pty:true
             }
         }
     }
@@ -58,4 +58,5 @@ dependencies {
     compile 'org.xerial:sqlite-jdbc:3.20.0'
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
+    compile files('libs/w1.jar')
 }
